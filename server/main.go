@@ -16,6 +16,7 @@ type statePopulation struct {
 }
 
 func main() {
+	http.Handle("/", http.FileServer(http.Dir("../web")))
 	http.HandleFunc("/data", getData)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

@@ -1,0 +1,24 @@
+<html>
+    <head>
+        <title>This is A title</title>
+        <h1>This is the chart page.</h1>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+        <script>
+            $.ajax({
+                url: "/data",
+                data: {
+                    zipcode: 97201
+                },
+                success: function( result ) {
+                    //alert(result)
+                    var str = JSON.stringify(result, null, 2)
+                    $( ".testDiv" ).html( "<p>" + str + "</p>" );
+                }
+            });
+        </script>
+    </head>
+    <body>
+        <div class="testDiv"></div>
+    </body>
+</html>
