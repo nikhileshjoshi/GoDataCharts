@@ -10,37 +10,46 @@ import (
 	"strconv"
 )
 
-type statePopulation struct {
-	State      string `json:"state"`
-	Population int64  `json:"population"`
+type PopulationDataForChart struct {
+	States     []string `json:"states"`
+	Population []int64  `json:"population"`
 }
 
 func main() {
 	http.Handle("/", http.FileServer(http.Dir("../web")))
 	http.HandleFunc("/data", getData)
 	log.Fatal(http.ListenAndServe(":8080", nil))
+	//readData("../data/StatePopulation.csv")
 }
 
 func getData(w http.ResponseWriter, req *http.Request) {
-	data, err := readData("../data/StatePopulation.csv")
+	chartData, err := readData("../data/StatePopulation.csv")
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println(chartData)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(data)
+	json.NewEncoder(w).Encode(chartData)
 }
 
-func readData(filePath string) ([]statePopulation, error) {
+func readData(filePath string) (*PopulationDataForChart, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
 	}
-	data := []statePopulation{}
 
 	r := csv.NewReader(f)
+	linecount := 0
+	var states []string
+	var populations []int64
 	for {
 		record, err := r.Read()
+		linecount++
+		if linecount == 1 {
+			continue //remove header
+		}
+
 		if err == io.EOF {
 			break
 		}
@@ -49,13 +58,15 @@ func readData(filePath string) ([]statePopulation, error) {
 		}
 		//fmt.Println(record[0], record[1])
 		if population, err := strconv.Atoi(record[1]); err != nil {
-			log.Println("Could not convert", record[1], "to int, So record for state", record[0], "ignored.")
+			log.Println("Could not convert population value: ", record[1], "to int, So record for state", record[0], "ignored.")
 			continue
 		} else {
-			p := statePopulation{record[0], int64(population)}
-			data = append(data, p)
+			populations = append(populations, int64(population))
+			states = append(states, record[0])
 		}
 
 	}
-	return data, nil
+	//fmt.Println(states)
+	return &PopulationDataForChart{states, populations}, nil
+	//return nil, nil, nil
 }
