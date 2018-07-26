@@ -17,11 +17,28 @@
                     //alert(result)
                     var str = JSON.stringify(result, null, 2)
                     $( ".testDiv" ).html( "<p>" + str + "</p>" );
+                    generateChart(result)
                 }
             });
+
+            generateChart = function(data){
+                data.states.unshift("States");
+                data.population.unshift("Population")
+                var chart = c3.generate({
+                    bindto: "#chart",
+                    data:{
+                        columns: [
+                            data.states,
+                            data.population
+                        ]
+                    }
+                });
+            }
         </script>
     </head>
     <body>
         <div class="testDiv"></div>
+        <br>
+        <div id="chart"></div>
     </body>
 </html>
